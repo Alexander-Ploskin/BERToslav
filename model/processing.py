@@ -11,10 +11,19 @@ def classify(messages):
     return toxicity_score
 
 
-def process(user_messages: Dict, top=5):
+def get_scores(user_messages: Dict):
     users = user_messages.keys()
     list_scores = list(map(lambda u: classify(user_messages[u]), users))
     user_scores = dict(zip(users, list_scores))
-    sorted_scores = dict(sorted(user_scores.items(), key=lambda item: item[1]))
-    top_toxics = sorted_scores.keys()[:top]
-    return top_toxics
+    return user_scores
+
+
+def process(user_messages: Dict):
+    scores = get_scores(user_messages)
+    write_into_file("./output_raw/new.txt", scores)
+
+
+def write_into_file(file_name, scores):
+    with open(file_name, "w") as file:
+        for key, value in scores.items():
+            file.write(f"{key} {value}\n")
