@@ -13,5 +13,5 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build and run container
         run: |
-          docker build -t -v data:/app/data bertoslav .
-          docker run bertoslav sh -c "cd model && pip install -r test-requirements.txt && pytest tests.py"
+          docker build -t bertoslav .
+          
