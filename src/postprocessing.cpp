@@ -7,9 +7,20 @@
 #include <algorithm>
 #include <chrono>
 #include <iomanip>
+#include <cstdlib> // for getenv
 
-void processTopScores(const std::string &inputFilename, const std::string &outputFilename)
+void processTopScores()
 {
+    // Get filenames from environment variables
+    const char *inputFilename = std::getenv("INPUT_FILENAME");
+    const char *outputFilename = std::getenv("OUTPUT_FILENAME");
+
+    if (!inputFilename || !outputFilename)
+    {
+        std::cerr << "Error: INPUT_FILENAME and OUTPUT_FILENAME environment variables must be set." << std::endl;
+        return;
+    }
+
     // Read the dictionary from file
     std::ifstream inFile(inputFilename);
     if (!inFile)
@@ -45,11 +56,12 @@ void processTopScores(const std::string &inputFilename, const std::string &outpu
     ss << std::put_time(std::localtime(&in_time_t), "%Y%m%d_%H%M%S");
     std::string timestamp = ss.str();
 
-    // Write toxics to file
-    std::ofstream outFile(outputFilename + "_" + timestamp + ".txt");
+    // Write top 5 IDs to file
+    std::string fullOutputFilename = std::string(outputFilename) + "_" + timestamp + ".txt";
+    std::ofstream outFile(fullOutputFilename);
     if (!outFile)
     {
-        std::cerr << "Error opening output file: " << outputFilename << std::endl;
+        std::cerr << "Error opening output file: " << fullOutputFilename << std::endl;
         return;
     }
 
@@ -59,5 +71,5 @@ void processTopScores(const std::string &inputFilename, const std::string &outpu
     }
     outFile.close();
 
-    std::cout << "Top 5 IDs written to " << outputFilename << "_" << timestamp << ".txt" << std::endl;
+    std::cout << "Top 5 IDs written to " << fullOutputFilename << std::endl;
 }
