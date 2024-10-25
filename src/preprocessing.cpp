@@ -6,13 +6,6 @@
 
 using namespace std;
 
-int preprocess()
-{
-    vector<pair<string, string>> messages = parseMessages("input.csv");
-    saveMessagesToCSV(messages, "output.csv");
-    return 0;
-}
-
 // Function to parse CSV and create a list of tuples (username, message)
 vector<pair<string, string>> parseMessages(const string& filename) {
     vector<pair<string, string>> result;
@@ -38,6 +31,13 @@ void saveMessagesToCSV(const vector<pair<string, string>>& messages, const strin
     for (const auto& [username, text] : messages) {
         file << username << "," << text << "\n";
     }
+}
+
+int preprocess()
+{
+    vector<pair<string, string>> messages = parseMessages("input.csv");
+    saveMessagesToCSV(messages, "output.csv");
+    return 0;
 }
 
 int main() {
