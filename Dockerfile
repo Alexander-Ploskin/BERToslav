@@ -5,9 +5,16 @@ RUN apt update && apt install -y \
     curl \
     vim \
     nano \
-    cmake
+    cmake \
+    python3 \
+    python3-pip \
+    python3-venv
 
 WORKDIR /app
 
 COPY src /app/src
 COPY model /app/model
+
+RUN cd src && make all
+
+ENTRYPOINT [ "make all" ]
