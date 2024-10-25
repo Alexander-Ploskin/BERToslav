@@ -42,14 +42,14 @@ build:
 
 	$(CC) -c $(CFLAGS) /app/src/tests/test_preprocessing.cpp -o tests_preprocessing.o -lgtest -lgtest_main
 	$(CC) -c $(CFLAGS) /app/src/tests/test_postprocessing.cpp -o tests_postprocessing.o -lgtest -lgtest_main
-	$(CC) -c $(CFLAGS) $< -o preprocessing_exec.o /app/$(SRC_DIR)/preprocessing_exec.cpp
-	$(CC) -c $(CFLAGS) $< -o postprocessing_exec.o /app/$(SRC_DIR)/postprocessing_exec.cpp
+	$(CC) -c $(CFLAGS) /app/src/preprocessing_exec.cpp -o test_preprocessing_exec.o
+	$(CC) -c $(CFLAGS) /app/src/postprocessing.cpp -o test_postprocessing_exec.o
 test:
 	@echo "Running tests..."
 	$(CC) $(CFLAGS) /app/src/tests_preprocessing.o /app/src/preprocessing.o -o tests_preprocessing_exec -lgtest -lgtest_main
 	$(CC) $(CFLAGS) /app/src/tests_postprocessing.o /app/src/postprocessing.o -o tests_postprocessing_exec -lgtest -lgtest_main
-	$(CC) $(CFLAGS) /app/src/preprocessing_exec.o /app/src/preprocessing.o -o preprocessing_exec
-	$(CC) $(CFLAGS) /app/src/postprocessing.o /app/src/postprocessing.o -o postprocessing
+	$(CC) $(CFLAGS) /app/src/test_postprocessing_exec.o /app/src/preprocessing.o -o test_preprocessing_exec
+	$(CC) $(CFLAGS) /app/src/test_postprocessing_exec.o /app/src/postprocessing.o -o test_postprocessing_exec
  
 	./tests_preprocessing_exec
 	./tests_postprocessing_exec

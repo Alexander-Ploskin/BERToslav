@@ -14,6 +14,9 @@ WORKDIR /app
 
 COPY src /app/src
 COPY model /app/model
+RUN pip3 install --no-cache-dir -r /app/model/requirements.txt
+
+COPY Makefile /app/Makefile
 
 RUN cd src && make all
 
