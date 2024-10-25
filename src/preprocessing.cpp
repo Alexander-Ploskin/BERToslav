@@ -39,8 +39,3 @@ int preprocess()
     saveMessagesToCSV(messages, "output.csv");
     return 0;
 }
-
-int main() {
-    preprocess();
-    return 0;
-}

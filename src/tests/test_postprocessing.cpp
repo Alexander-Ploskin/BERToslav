@@ -5,9 +5,10 @@
 #include <algorithm>
 #include <cstdio>
 #include <regex>
+#include <filesystem> // Include for filesystem operations
 
 // Include the function to be tested
-void processTopScores(const std::string &inputFilename, const std::string &outputFilename);
+void postprocess();
 
 class ProcessTopScoresTest : public ::testing::Test
 {
@@ -40,7 +41,7 @@ protected:
 
 TEST_F(ProcessTopScoresTest, CorrectTopFiveIds)
 {
-    processTopScores("test_input.txt", "test_output");
+    postprocess();
 
     // Find the created output file
     std::string outputFile;
@@ -80,7 +81,7 @@ TEST_F(ProcessTopScoresTest, LessThanFiveEntries)
     inFile << "id3 150\n";
     inFile.close();
 
-    processTopScores("test_input_small.txt", "test_output_small");
+    postprocess();
 
     // Find the created output file
     std::string outputFile;
@@ -117,7 +118,7 @@ TEST_F(ProcessTopScoresTest, EmptyInputFile)
     std::ofstream inFile("test_input_empty.txt");
     inFile.close();
 
-    processTopScores("test_input_empty.txt", "test_output_empty");
+    postprocess();
 
     // Find the created output file
     std::string outputFile;
@@ -144,10 +145,19 @@ TEST_F(ProcessTopScoresTest, EmptyInputFile)
 
 TEST_F(ProcessTopScoresTest, InvalidInputFile)
 {
-    processTopScores("non_existent_file.txt", "test_output_invalid");
+    postprocess();
 
-    // Check that no output file was created
-    bool outputFileExists = false;
-    for (const auto &entry : std::filesystem::directory_iterator("."))
-    {
-        if (std::regex_
+   // Check that no output file was created
+   bool outputFileExists = false;
+   for (const auto &entry : std::filesystem::directory_iterator("."))
+   {
+       if (std::regex_match(entry.path().filename().string(), std::regex("test_output_invalid_\\d{8}_\\d{6}\\.txt")))
+       {
+           outputFileExists = true;
+           filesToRemove.push_back(entry.path().string());
+           break;
+       }
+   }
+
+   EXPECT_FALSE(outputFileExists) << "No output file should be created for an invalid input file.";
+}

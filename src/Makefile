@@ -1,7 +1,7 @@
 # Variables
 CC = g++
-CFLAGS = -std=c++14 -Wall -Wextra -pthread
-CXX_FLAGS = -std=c++14
+CFLAGS = -std=c++17 -Wall -Wextra -pthread
+CXX_FLAGS = -std=c++17
 
 
 # Libraries
@@ -38,13 +38,18 @@ prereqs:
 	ln -sf /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a
 
 build:
-	$(CC) $(CFLAGS) $< -o preprocessing /app/$(SRC_DIR)/preprocessing.cpp
-	$(CC) $(CFLAGS) $< -o postprocessing /app/$(SRC_DIR)/postprocessing.cpp
+	$(CC) -c $(CFLAGS) $< -o preprocessing.o /app/$(SRC_DIR)/preprocessing.cpp
+	$(CC) -c $(CFLAGS) $< -o postprocessing.o /app/$(SRC_DIR)/postprocessing.cpp
+	$(CC) -c $(CFLAGS) /app/src/tests/test_preprocessing.cpp -o tests_preprocessing.o -lgtest -lgtest_main
+	$(CC) -c $(CFLAGS) /app/src/tests/test_postprocessing.cpp -o tests_postprocessing.o -lgtest -lgtest_main
 
+ 
 test:
 	@echo "Running tests..."
-	$(CC) $(CFLAGS) $< -o tests_executable /app/$(SRC_DIR)/$(TEST_DIR)/test_preprocessing.cpp
-	./tests_executable
+	$(CC) $(CFLAGS) /app/src/tests_preprocessing.o /app/src/preprocessing.o -o tests_preprocessing_exec -lgtest -lgtest_main
+	$(CC) $(CFLAGS) /app/src/tests_postprocessing.o /app/src/postprocessing.o -o tests_postprocessing_exec -lgtest -lgtest_main
+	./tests_preprocessing_exec
+	./tests_postprocessing_exec
 
 clean:
 	rm -rf $(BIN_DIR)/* $(TEST_DIR)/*

@@ -73,8 +73,3 @@ void postprocess()
 
     std::cout << "Top 5 IDs written to " << fullOutputFilename << std::endl;
 }
-
-int main() {
-    postprocess();
-    return 0;
-}
