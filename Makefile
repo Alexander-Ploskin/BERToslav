@@ -38,28 +38,25 @@ prereqs:
 		ln -sf /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a
 		ln -sf /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a
 
-build: $(EXECUTABLES)
+build:
 
 $(BIN_DIR)/preprocessing: $(SRC_DIR)/preprocessing.cpp
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $< -o $(BIN_DIR)/preprocessing
+
+	$(CC) -c $(CFLAGS) $< -o $(BIN_DIR)/preprocessing.o $(SRC_DIR)/preprocessing.cpp
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/test_preprocessing.cpp -o $(SRC_DIR)/$(TEST_DIR)/tests_preprocessing.o -lgtest -lgtest_main
 
 $(BIN_DIR)/postprocessing: $(SRC_DIR)/postprocessing.cpp
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $< -o $(BIN_DIR)/postprocessing
+	$(CC) -c $(CFLAGS) $< -o $(BIN_DIR)/postprocessing.o $(SRC_DIR)/postprocessing.cpp
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/test_postprocessing.cpp -o $(SRC_DIR)/$(TEST_DIR)/tests_postprocessing.o -lgtest -lgtest_main
 
 
-test: $(TEST_EXECUTABLE_PREPROCESSING) $(TEST_EXECUTABLE_POSTPROCESSING)
-
-# Rule to build the preprocessing test executable
-$(TEST_EXECUTABLE_PREPROCESSING): $(SRC_DIR)/$(TEST_DIR)/test_preprocessing.cpp
-	@mkdir -p $(SRC_DIR)/$(TEST_DIR) # Ensure the output directory exists
-	$(CC) $(CFLAGS) $< -o $@
-
-# Rule to build the postprocessing test executable
-$(TEST_EXECUTABLE_POSTPROCESSING): $(SRC_DIR)/$(TEST_DIR)/test_postprocessing.cpp
-	@mkdir -p $(SRC_DIR)/$(TEST_DIR) # Ensure the output directory exists
-	$(CC) $(CFLAGS) $< -o $@
-
+test:
+	@echo "Running tests..."
+	$(CC) $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/tests_preprocessing.o $(BIN_DIR)/preprocessing.o -o tests_preprocessing_exec -lgtest -lgtest_main
+	./tests_preprocessing_exec
+	$(CC) $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/tests_postprocessing.o $(BIN_DIR)/postprocessing.o -o tests_postprocessing_exec -lgtest -lgtest_main
+	./tests_postprocessing_exec
 clean:
 	rm -rf $(BIN_DIR)/* $(TEST_DIR)/*
