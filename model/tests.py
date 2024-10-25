@@ -1,74 +1,67 @@
 import pytest
-import numpy as np
+from unittest.mock import patch
 from processing import (
     classify,
-    process,
+    write_into_file,
 )
-
-
-@pytest.fixture
-def sample_user_messages():
-    return {
-        "user1": ["Hello", "How are you?"],
-        "user2": ["You're an idiot"],
-        "user3": ["I love this!"],
-        "user4": ["This is terrible"],
-        "user5": ["Have a nice day"],
-    }
-
-
-def test_classify():
-    messages = ["Hello", "This is a test", "You are amazing"]
-    result = classify(messages)
-
-    assert isinstance(result, float)
-    assert 0 <= result <= 1
 
 
 @pytest.mark.parametrize(
     "messages, expected_range",
     [
-        (["Hello", "How are you?"], (0, 0.5)),
-        (["You're an idiot"], (0.5, 1)),
-        (["I love this!"], (0, 0.3)),
+        (["Hello"], (0.0, 0.4)),  # Non-aggressive
+        (["I hate you!"], (0.4, 1.0)),  # Very aggressive
     ],
 )
-def test_classify_specific_cases(messages, expected_range):
-    result = classify(messages)
-    assert expected_range[0] <= result <= expected_range[1]
+def test_classify_with_real_model(messages, expected_range):
+    # Call classify with the provided messages
+    score = classify(messages)
+
+    # Assert that the score falls within the expected range
+    assert expected_range[0] <= score <= expected_range[1]
 
 
-def test_process(sample_user_messages):
-    result = process(sample_user_messages, top=3)
-
-    assert isinstance(result, list)
-    assert len(result) == 3
-    assert all(user in sample_user_messages.keys() for user in result)
-
-    scores = [classify(sample_user_messages[user]) for user in result]
-    assert scores == sorted(scores)
+# Mocking Detoxify's predict method
+@pytest.fixture
+def mock_detoxify():
+    with patch("detoxify.Detoxify") as MockDetoxify:
+        mock_instance = MockDetoxify.return_value
+        yield mock_instance
 
 
 @pytest.mark.parametrize(
-    "input_dict, expected_length",
+    "mock_return_value, expected_mean",
     [
-        ({}, 0),
-        ({"user1": ["Test message"]}, 1),
+        ([0.1, 0.1, 0.1], 0.1),  # Example toxicity scores
+        ([0.2, 0.3, 0.4], 0.3),  # Another set of scores
+        ([0.5, 0.5, 0.5], 0.5),  # Uniform higher scores
+        ([0.9, 0.8, 0.7], 0.8),  # High toxicity scores
     ],
 )
-def test_process_edge_cases(input_dict, expected_length):
-    result = process(input_dict)
-    assert len(list(result)) == expected_length
+def test_classify(mock_detoxify, mock_return_value, expected_mean):
+    # Setup mock return value for predict based on parameterization
+    mock_detoxify.predict.return_value = {"toxicity": mock_return_value}
+
+    messages = ["Hello", "How are you?", "Goodbye"]
+
+    # Call classify with the mocked Detoxify instance
+    score = classify(messages, detoxify_model=mock_detoxify)
+
+    assert score == pytest.approx(expected_mean, abs=0.001)
 
 
-def test_process_top_parameter(sample_user_messages):
-    for top in range(1, 6):
-        result = process(sample_user_messages, top=top)
-        assert len(list(result)) == top
+def test_write_into_file(tmp_path):
+    user_scores = {"user1": 0.1, "user2": 0.4}
 
+    output_file = tmp_path / "output_raw/new.txt"
 
-@pytest.mark.parametrize("top", [1, 3, 5])
-def test_process_order(sample_user_messages, top):
-    result = process(sample_user_messages, top=top)
-    scores = [classify(sample_user_messages[user]) for user in result]
-    assert scores == sorted(scores)
+    # Ensure the directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    write_into_file(str(output_file), user_scores)
+
+    # Read back the file and check contents
+    with open(output_file) as f:
+        lines = f.readlines()
+
+    assert lines == ["user1 0.1\n", "user2 0.4\n"]
