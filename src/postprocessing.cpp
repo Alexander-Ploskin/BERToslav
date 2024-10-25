@@ -9,7 +9,7 @@
 #include <iomanip>
 #include <cstdlib> // for getenv
 
-void processTopScores()
+void postprocess()
 {
     // Get filenames from environment variables
     const char *inputFilename = std::getenv("INPUT_FILENAME");
@@ -46,7 +46,7 @@ void processTopScores()
     // Sort the scores
     std::vector<std::pair<std::string, int>> sortedScores(scoreMap.begin(), scoreMap.end());
     std::sort(sortedScores.begin(), sortedScores.end(),
-              [](const auto &a, const auto &b)
+              [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
               { return a.second > b.second; });
 
     // Get current timestamp
