@@ -20,10 +20,10 @@ def get_scores(user_messages: Dict):
 
 def process(user_messages: Dict):
     scores = get_scores(user_messages)
-    write_into_file("./output_raw/new.txt", scores)
+    write_into_file("./data/output/new.txt", scores)
 
 
 def write_into_file(file_name, scores):
-    with open(file_name, "w") as file:
+    with open(file_name, "w+") as file:
         for key, value in scores.items():
             file.write(f"{key} {value}\n")

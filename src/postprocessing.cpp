@@ -57,7 +57,7 @@ void postprocess()
     std::string timestamp = ss.str();
 
     // Write top 5 IDs to file
-    std::string fullOutputFilename = std::string(outputFilename) + "_" + timestamp + ".txt";
+    std::string fullOutputFilename = std::string(outputFilename); //+ "_" + timestamp + ".txt";
     std::ofstream outFile(fullOutputFilename);
     if (!outFile)
     {
