@@ -1,7 +1,7 @@
 # Variables
 CC = g++
-CFLAGS = -std=c++14 -Wall -Wextra -pthread
-CXX_FLAGS = -std=c++14
+CFLAGS = -std=c++17 -Wall -Wextra -pthread
+CXX_FLAGS = -std=c++17
 
 
 # Libraries
@@ -21,7 +21,6 @@ REQUIREMENTS_FILE = model/requrements.txt
 
 all: prereqs build test
 
-
 prereqs:
 	@echo "Installing dependencies..."
 	@echo "Installing prerequisites..."
@@ -38,19 +37,24 @@ prereqs:
 		ln -sf /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a
 		ln -sf /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a
 
-build:
+build: $(BIN_DIR)/preprocessing $(BIN_DIR)/postprocessing
 
 $(BIN_DIR)/preprocessing: $(SRC_DIR)/preprocessing.cpp
 	@mkdir -p $(BIN_DIR)
 
-	$(CC) -c $(CFLAGS) $< -o $(BIN_DIR)/preprocessing.o $(SRC_DIR)/preprocessing.cpp
+	$(CC) -c $(CFLAGS) -o $(BIN_DIR)/preprocessing.o $(SRC_DIR)/preprocessing.cpp
 	$(CC) -c $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/test_preprocessing.cpp -o $(SRC_DIR)/$(TEST_DIR)/tests_preprocessing.o -lgtest -lgtest_main
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/preprocessing_exec.cpp -o $(BIN_DIR)/preprocessing_exec.o
+	$(CC) $(CFLAGS) $(BIN_DIR)/preprocessing_exec.o $(BIN_DIR)/preprocessing.o -o $(BIN_DIR)/preprocessing_exec
+
 
 $(BIN_DIR)/postprocessing: $(SRC_DIR)/postprocessing.cpp
 	@mkdir -p $(BIN_DIR)
-	$(CC) -c $(CFLAGS) $< -o $(BIN_DIR)/postprocessing.o $(SRC_DIR)/postprocessing.cpp
-	$(CC) -c $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/test_postprocessing.cpp -o $(SRC_DIR)/$(TEST_DIR)/tests_postprocessing.o -lgtest -lgtest_main
 
+	$(CC) -c $(CFLAGS) -o $(BIN_DIR)/postprocessing.o $(SRC_DIR)/postprocessing.cpp
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/$(TEST_DIR)/test_postprocessing.cpp -o $(SRC_DIR)/$(TEST_DIR)/tests_postprocessing.o -lgtest -lgtest_main
+	$(CC) -c $(CFLAGS) $(SRC_DIR)/postprocessing_exec.cpp -o $(BIN_DIR)/postprocessing_exec.o -lgtest -lgtest_main
+	$(CC) $(CFLAGS) $(BIN_DIR)/postprocessing_exec.o $(BIN_DIR)/postprocessing.o -o $(BIN_DIR)/postprocessing_exec
 
 test:
 	@echo "Running tests..."
