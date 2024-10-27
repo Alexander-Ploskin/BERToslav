@@ -1,0 +1,23 @@
+EXEC_PREPROCESS = ./preprocessing_exec
+EXEC_POSTPROCESS = ./postprocessing_exec
+PYTHON_SCRIPT = model/processing.py
+VENV_DIR = venv
+
+.PHONY: all preprocess process postprocess
+
+all: preprocess process postprocess
+
+# Target to run the preprocessing executable
+preprocess:
+	@echo "Running preprocessing..."
+	@$(EXEC_PREPROCESS)
+
+# Target to run the Python script
+process:
+	@echo "Running process script..."
+	@$(VENV_DIR)/bin/python $(PYTHON_SCRIPT)
+
+# Target to run the postprocessing executable
+postprocess:
+	@echo "Running postprocessing..."
+	@$(EXEC_POSTPROCESS)

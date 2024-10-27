@@ -1,0 +1,4 @@
+pytest==8.3.3
+torch==2.5.0
+detoxify==0.5.2
+pandas==2.2.3
