@@ -3,7 +3,8 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - feature/build_system_fixed_tests # Change this to your default branch name
+      - develop
+      - master
 
 jobs:
   build:
