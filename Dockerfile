@@ -22,6 +22,8 @@ RUN --mount=type=cache,target=/root/.cache/pip ./venv/bin/pip install -r /app/mo
 COPY Makefile.build Makefile.build
 COPY Makefile.run Makefile.run
 
+COPY cache /root/.cache
+
 RUN make -f Makefile.build all
 
 ENTRYPOINT ["make", "-f", "Makefile.run"]

@@ -35,7 +35,7 @@ void saveMessagesToCSV(const vector<pair<string, string>>& messages, const strin
 
 int preprocess()
 {
-    vector<pair<string, string>> messages = parseMessages("input.csv");
-    saveMessagesToCSV(messages, "output.csv");
+    vector<pair<string, string>> messages = parseMessages("/app/data/input_raw/input.csv");
+    saveMessagesToCSV(messages, "/app/data/input/input.csv");
     return 0;
 }
