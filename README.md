@@ -19,11 +19,14 @@ docker build -t bertoslav .
 
 ## Run
 
-To run the BERToslav bot, use the following Docker command:
-
+To run the BERToslav bot, follow instructions:
+1. Export Telegram chat in .csv format.
+2. Place exported file in data/input_raw.
+3. Run the following Docker command:
 ```bash
-docker run -v $(pwd)/data:/data bertoslav
+docker run -v $(pwd)/data:/app/data bertoslav
 ```
+4. Check out Top 5 toxic users in /data/output folder.
 
 ## Prerequisites
 
