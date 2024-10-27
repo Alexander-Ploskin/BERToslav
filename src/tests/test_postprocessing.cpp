@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <regex>
 #include <filesystem> // Include for filesystem operations
+#include <cstdlib>    // for getenv
 
 // Include the function to be tested
 void postprocess();
@@ -24,6 +25,9 @@ protected:
         inFile << "id5 250\n";
         inFile << "id6 50\n";
         inFile.close();
+
+        setenv("INPUT_FILENAME", "test_input.txt", 1);
+        setenv("OUTPUT_FILENAME", "test_output.txt", 1);
     }
 
     void TearDown() override
@@ -44,16 +48,7 @@ TEST_F(ProcessTopScoresTest, CorrectTopFiveIds)
     postprocess();
 
     // Find the created output file
-    std::string outputFile;
-    for (const auto &entry : std::filesystem::directory_iterator("."))
-    {
-        if (std::regex_match(entry.path().filename().string(), std::regex("test_output_\\d{8}_\\d{6}\\.txt")))
-        {
-            outputFile = entry.path().string();
-            filesToRemove.push_back(outputFile);
-            break;
-        }
-    }
+    std::string outputFile = "test_output.txt";
 
     ASSERT_FALSE(outputFile.empty()) << "Output file not found";
 
@@ -81,19 +76,12 @@ TEST_F(ProcessTopScoresTest, LessThanFiveEntries)
     inFile << "id3 150\n";
     inFile.close();
 
+    setenv("INPUT_FILENAME", "test_input_small.txt", 1);
+
     postprocess();
 
     // Find the created output file
-    std::string outputFile;
-    for (const auto &entry : std::filesystem::directory_iterator("."))
-    {
-        if (std::regex_match(entry.path().filename().string(), std::regex("test_output_small_\\d{8}_\\d{6}\\.txt")))
-        {
-            outputFile = entry.path().string();
-            filesToRemove.push_back(outputFile);
-            break;
-        }
-    }
+    std::string outputFile = "test_output.txt";
 
     ASSERT_FALSE(outputFile.empty()) << "Output file not found";
 
@@ -117,20 +105,12 @@ TEST_F(ProcessTopScoresTest, EmptyInputFile)
 {
     std::ofstream inFile("test_input_empty.txt");
     inFile.close();
+    setenv("INPUT_FILENAME", "test_input_empty.txt", 1);
 
     postprocess();
 
     // Find the created output file
-    std::string outputFile;
-    for (const auto &entry : std::filesystem::directory_iterator("."))
-    {
-        if (std::regex_match(entry.path().filename().string(), std::regex("test_output_empty_\\d{8}_\\d{6}\\.txt")))
-        {
-            outputFile = entry.path().string();
-            filesToRemove.push_back(outputFile);
-            break;
-        }
-    }
+    std::string outputFile = "test_output.txt";
 
     ASSERT_FALSE(outputFile.empty()) << "Output file not found";
 
@@ -147,17 +127,23 @@ TEST_F(ProcessTopScoresTest, InvalidInputFile)
 {
     postprocess();
 
-   // Check that no output file was created
-   bool outputFileExists = false;
-   for (const auto &entry : std::filesystem::directory_iterator("."))
-   {
-       if (std::regex_match(entry.path().filename().string(), std::regex("test_output_invalid_\\d{8}_\\d{6}\\.txt")))
-       {
-           outputFileExists = true;
-           filesToRemove.push_back(entry.path().string());
-           break;
-       }
-   }
+    // Check that no output file was created
+    bool outputFileExists = false;
+    for (const auto &entry : std::filesystem::directory_iterator("."))
+    {
+        if (std::regex_match(entry.path().filename().string(), std::regex("test_output_invalid_\\d{8}_\\d{6}\\.txt")))
+        {
+            outputFileExists = true;
+            filesToRemove.push_back(entry.path().string());
+            break;
+        }
+    }
 
-   EXPECT_FALSE(outputFileExists) << "No output file should be created for an invalid input file.";
+    EXPECT_FALSE(outputFileExists) << "No output file should be created for an invalid input file.";
+}
+
+int main(int argc, char **argv)
+{
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
 }
