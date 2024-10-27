@@ -15,6 +15,13 @@ WORKDIR /app
 COPY src /app/src
 COPY model /app/model
 
-COPY Makefile Makefile
+RUN python3 -m venv venv
 
-RUN make all
+RUN --mount=type=cache,target=/root/.cache/pip ./venv/bin/pip install -r /app/model/requirements.txt
+
+COPY Makefile.build Makefile.build
+COPY Makefile.run Makefile.run
+
+RUN make -f Makefile.build all
+
+ENTRYPOINT ["make", "-f", "Makefile.run"]
